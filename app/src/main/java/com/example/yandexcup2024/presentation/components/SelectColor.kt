@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 fun SelectColor(
     isSelect: Boolean = false,
     selectedColor: Color = Color.Blue,
+
 ) {
     Box(
         modifier = Modifier

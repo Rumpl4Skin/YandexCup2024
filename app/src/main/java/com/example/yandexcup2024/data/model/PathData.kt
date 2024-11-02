@@ -1,8 +1,8 @@
 package com.example.yandexcup2024.data.model
 
 
-import android.graphics.Path
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 
 
 data class PathData (

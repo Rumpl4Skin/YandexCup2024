@@ -2,6 +2,7 @@ package com.example.yandexcup2024.presentation
 
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import com.example.yandexcup2024.data.model.PathData
 import com.example.yandexcup2024.data.model.SelectableInstruments
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,10 +13,11 @@ class MainActivityViewModel : ViewModel() {
     val paletteVisible = _paletteVisible.asStateFlow()
     private val _paletteExtendedVisible = MutableStateFlow(false)
     val paletteExtendedVisible = _paletteExtendedVisible.asStateFlow()
-    private val _selectedColor = MutableStateFlow(Color.Blue)
+    private val _selectedColor = MutableStateFlow(PathData(color = Color.Blue))
     val selectedColor = _selectedColor.asStateFlow()
     private val _selectedInstrument = MutableStateFlow(SelectableInstruments.None)
     val selectedInstrument = _selectedInstrument.asStateFlow()
+
 
     fun updatePaletteVisible(visibility: Boolean = false) {
         _paletteVisible.update { visibility }
@@ -25,8 +27,8 @@ class MainActivityViewModel : ViewModel() {
         _paletteExtendedVisible.update { visibility }
     }
 
-    fun updateSelectedColor(newColor: Color = Color.Blue) {
-        _selectedColor.update { newColor }
+    fun updateSelectedColor(newPathData: PathData) {
+        _selectedColor.update { _selectedColor.value.copy(color = newPathData.color) }
     }
 
     fun updateSelectedInstrument(newInstrument: SelectableInstruments = SelectableInstruments.None) {

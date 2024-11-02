@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
 
                 val paletteVisible by viewModel.paletteVisible.collectAsState()
                 val paletteExtendedVisible by viewModel.paletteExtendedVisible.collectAsState()
-                val selectedColor by viewModel.selectedColor.collectAsState()
+                val selectedColor = viewModel.selectedColor.collectAsState()
                 val selectedInstrument by viewModel.selectedInstrument.collectAsState()
 
                 Scaffold(
@@ -94,7 +94,7 @@ class MainActivity : ComponentActivity() {
                                 viewModel.updatePaletteExtendedVisible(false)
                                 viewModel.updateSelectedInstrument(SelectableInstruments.ColorSelect)
                             },
-                            selectedColor = selectedColor
+                            selectedColor = selectedColor.value.color
                         )
                     },
                     floatingActionButton = {
@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity() {
                                 ) + fadeOut(animationSpec = tween(durationMillis = 300))
                             ) {
                                 ColorPalleteExtendedPanel {
-                                    viewModel.updateSelectedColor(it)
+                                    viewModel.updateSelectedColor(selectedColor.value.copy(color = it))
                                     viewModel.updatePaletteExtendedVisible(!paletteExtendedVisible)
                                     viewModel.updatePaletteVisible(!paletteVisible)
                                 }
@@ -134,7 +134,7 @@ class MainActivity : ComponentActivity() {
                                 ColorPalettePanel(
                                     onColorClick = {
                                         viewModel.updatePaletteVisible(!paletteVisible)
-                                        viewModel.updateSelectedColor(it)
+                                        viewModel.updateSelectedColor(selectedColor.value.copy(color = it))
                                         viewModel.updatePaletteExtendedVisible(false)
 
                                     },
@@ -153,7 +153,8 @@ class MainActivity : ComponentActivity() {
                     content = { innerPadding ->
                         DrawArea(
                             modifier = Modifier.padding(innerPadding),
-                            selectedColor = selectedColor
+                            selectedColor = selectedColor,
+                            pencilSelect = selectedInstrument == SelectableInstruments.Pencil
                         )
                     }
                 )

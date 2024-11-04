@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.yandexcup2024.data.model.CurrentFrame
 import com.example.yandexcup2024.data.model.SelectableInstruments
 import com.example.yandexcup2024.presentation.components.ColorPalettePanel
 import com.example.yandexcup2024.presentation.components.ColorPalleteExtendedPanel
@@ -34,6 +35,7 @@ import com.example.yandexcup2024.presentation.components.DrawArea
 import com.example.yandexcup2024.presentation.components.Headers
 import com.example.yandexcup2024.presentation.components.TabBar
 import com.example.yandexcup2024.ui.theme.YandexCup2024Theme
+import kotlinx.coroutines.flow.asFlow
 
 class MainActivity : ComponentActivity() {
 
@@ -57,6 +59,8 @@ class MainActivity : ComponentActivity() {
                 val selectedInstrument by viewModel.selectedInstrument.collectAsState()
 
                 val currentFrame by viewModel.currentFrame.collectAsState()
+                val frames = viewModel.frames.collectAsState()
+                val currentIndex by viewModel.currentIndex.collectAsState(0)
 
                 Scaffold(
                     modifier = Modifier
@@ -68,11 +72,31 @@ class MainActivity : ComponentActivity() {
                                 Headers(
                                     undoActive = currentFrame.paths.isNotEmpty(),
                                     redoActive = currentFrame.undonePaths.isNotEmpty(),
+                                    binActive = frames.value.isNotEmpty(),
                                     onUndo = viewModel::undo,
                                     onRedo = viewModel::redo,
-                                    onClearCurrentFrame = {currentFrame.paths.clear()
-                                    currentFrame.undonePaths.clear()
-                                    currentFrame.currentPath.reset()}
+                                    onClearCurrentFrame = {
+                                        if (frames.value.size > 1) {
+                                            viewModel.removeCurrentFrame(currentFrame)
+                                            currentFrame.paths.clear()
+                                            currentFrame.undonePaths.clear()
+                                            //viewModel.changeIndex(frames.value.lastIndex)
+                                            viewModel.updateCurrentFrame(frames.value[currentIndex])
+                                        }
+                                        else{
+                                            currentFrame.paths.clear()
+                                            currentFrame.undonePaths.clear()
+                                        }
+                                    },
+                                    onFrameAdd = {
+                                        val newFrame = CurrentFrame()
+                                        viewModel.addFrame(newFrame)
+                                        viewModel.changeIndex(currentIndex + 1)
+                                        viewModel.updateCurrentFrame(newFrame)
+                                        currentFrame.paths.clear()
+                                        currentFrame.undonePaths.clear()
+                                    }
+
                                 )
                             },
                             colors = TopAppBarColors(
@@ -165,7 +189,11 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.padding(innerPadding),
                             selectedColor = selectedColor,
                             selectedInstruments = viewModel.selectedInstrument,
-                            onUpdatePaths = {viewModel.updateCurrentFrame(currentFrame.copy(paths = it))},
+                            onUpdatePaths = {
+                                viewModel.updateCurrentFrame(
+                                    currentFrame.copy(paths = it)
+                                )
+                            },
                             pathsVM = currentFrame.paths,
                             undonePathsVM = currentFrame.undonePaths,
                         )

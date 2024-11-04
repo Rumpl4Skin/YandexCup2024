@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
@@ -46,6 +47,7 @@ fun DrawArea(
     pathsVM: SnapshotStateList<PathData>,
     undonePathsVM: SnapshotStateList<PathData>,
     onUpdatePaths: (SnapshotStateList<PathData>) -> Unit,
+
 ) {
     val bg = ImageBitmap.imageResource(id = R.drawable.canvas_bg)
     val paths = remember { pathsVM }
@@ -70,7 +72,6 @@ fun DrawArea(
                                 change.position.x,
                                 change.position.y
                             )
-
                         },
                         onDragEnd = {
                             if (!currentPath.isEmpty) {
@@ -84,7 +85,6 @@ fun DrawArea(
                                 } else {
                                     paths.add(selectedColor.value.copy(path = currentPath))
                                 }
-                                onUpdatePaths(paths)
                             }
                             currentPath = Path() // Новый путь для следующего рисования
                         }
@@ -128,6 +128,8 @@ fun DrawArea(
 
         with(drawContext.canvas.nativeCanvas) {
             val checkPoint = saveLayer(null, null)
+
+
             paths.forEach { pathData ->
                 if (!pathData.isErase) {
                     drawPath(

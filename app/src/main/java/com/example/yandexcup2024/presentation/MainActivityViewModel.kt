@@ -1,16 +1,14 @@
 package com.example.yandexcup2024.presentation
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathFillType
-import androidx.compose.ui.graphics.PathOperation
-import androidx.compose.ui.graphics.asAndroidPath
 import androidx.lifecycle.ViewModel
 import com.example.yandexcup2024.data.model.CurrentFrame
 import com.example.yandexcup2024.data.model.PathData
 import com.example.yandexcup2024.data.model.SelectableInstruments
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -30,7 +28,11 @@ class MainActivityViewModel : ViewModel() {
     private val _currentFrame = MutableStateFlow(CurrentFrame())
     val currentFrame = _currentFrame.asStateFlow()
 
+    private val _frames = MutableStateFlow(mutableListOf(_currentFrame.value))
+    val frames: StateFlow<MutableList<CurrentFrame>> = _frames
 
+    private val _currentIndex = MutableStateFlow(0)
+    val currentIndex = _currentIndex.asStateFlow()
 
 
     fun updatePaletteVisible(visibility: Boolean = false) {
@@ -51,11 +53,11 @@ class MainActivityViewModel : ViewModel() {
 
 
     fun updateCurrentFrame(newCurrentFrame: CurrentFrame) {
-        newCurrentFrame.paths.forEachIndexed() { index, it->
+        newCurrentFrame.paths.forEachIndexed() { index, it ->
             if (it.path.isEmpty)
                 newCurrentFrame.paths.removeAt(index)
         }
-        newCurrentFrame.undonePaths .forEachIndexed() { index, it->
+        newCurrentFrame.undonePaths.forEachIndexed() { index, it ->
             if (it.path.isEmpty)
                 newCurrentFrame.undonePaths.removeAt(index)
         }
@@ -64,11 +66,7 @@ class MainActivityViewModel : ViewModel() {
 
     fun undo() { //назад
         if (_currentFrame.value.paths.isNotEmpty()) {
-            var lastPath = _currentFrame.value.paths.last()
-            while (lastPath.path.isEmpty){
-                _currentFrame.value.paths.remove(lastPath)
-                lastPath = _currentFrame.value.paths.last()
-            }
+            val lastPath = _currentFrame.value.paths.last()
             _currentFrame.value.undonePaths.add(lastPath)
             _currentFrame.value.paths.remove(lastPath)
         }
@@ -76,16 +74,36 @@ class MainActivityViewModel : ViewModel() {
 
     fun redo() { // вперед
         if (_currentFrame.value.undonePaths.isNotEmpty()) {
-            var lastUndonePath = _currentFrame.value.undonePaths.last()
-            while (lastUndonePath.path.isEmpty){
-                _currentFrame.value.undonePaths.remove(lastUndonePath)
-                lastUndonePath = _currentFrame.value.undonePaths.last()
-            }
+            val lastUndonePath = _currentFrame.value.undonePaths.last()
             _currentFrame.value.paths.add(lastUndonePath)
             _currentFrame.value.undonePaths.remove(lastUndonePath)
         }
     }
 
+    fun udpateFrames(frames: MutableList<CurrentFrame>) {
+        _frames.update { frames }
+    }
 
+    fun removeCurrentFrame(frame: CurrentFrame) {
+
+        _frames.value.remove(frame)
+        _frames.update {
+            _frames.value
+        }
+        updateCurrentFrame(_frames.value.last())
+        _currentIndex.update { _frames.value.lastIndex-1 }
+    }
+
+    fun addFrame(frame: CurrentFrame) {
+        _frames.update {
+            _frames.value.apply {
+                it.add(frame)
+            }
+        }
+    }
+
+    fun changeIndex(i: Int) {
+        _currentIndex.update { i }
+    }
 
 }

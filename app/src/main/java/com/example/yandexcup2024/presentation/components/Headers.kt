@@ -19,11 +19,13 @@ fun Headers(
     modifier: Modifier = Modifier,
     undoActive: Boolean = false,
     redoActive: Boolean = false,
+    binActive: Boolean = false,
     playActive: Boolean = false,
     pauseActive: Boolean = false,
     onUndo: () -> Unit,
     onRedo: () -> Unit,
-    onClearCurrentFrame: () -> Unit
+    onClearCurrentFrame: () -> Unit,
+    onFrameAdd: ()->Unit
 ) {
     Row(
         modifier = Modifier
@@ -55,14 +57,14 @@ fun Headers(
             modifier = Modifier.weight(1f),
             horizontalArrangement = Arrangement.Center
         ) {
-            IconButton(onClick = { /* Bin action */ onClearCurrentFrame.invoke() }) {
+            IconButton(onClick = { /* Bin action */ onClearCurrentFrame.invoke() }, enabled = binActive) {
                 Icon(
                     modifier = Modifier.size(24.dp),
                     painter = painterResource(id = R.drawable.bin),
                     contentDescription = null
                 )
             }
-            IconButton(onClick = { /* frame add action */ }) {
+            IconButton(onClick = { /* frame add action */ onFrameAdd.invoke()}) {
                 Icon(
                     modifier = Modifier.size(24.dp),
                     painter = painterResource(id = R.drawable.file_plus),

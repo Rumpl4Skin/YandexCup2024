@@ -5,7 +5,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Path
 
 data class CurrentFrame(
- val currentPath: Path = Path(),
  val paths: SnapshotStateList<PathData> = mutableStateListOf(),
  val undonePaths: SnapshotStateList<PathData> = mutableStateListOf(),
 ) {

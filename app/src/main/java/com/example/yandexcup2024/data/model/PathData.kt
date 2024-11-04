@@ -7,5 +7,6 @@ import androidx.compose.ui.graphics.Path
 
 data class PathData (
     val path: Path = Path(),
-    val color: Color = Color.Blue,
+    val color: Color = Color.Unspecified,
+    val isErase: Boolean = false,
 )

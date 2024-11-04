@@ -21,8 +21,10 @@ fun Headers(
     redoActive: Boolean = false,
     playActive: Boolean = false,
     pauseActive: Boolean = false,
-
-    ) {
+    onUndo: () -> Unit,
+    onRedo: () -> Unit,
+    onClearCurrentFrame: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -30,7 +32,7 @@ fun Headers(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        IconButton(onClick = { /* Undo action */ }) {
+        IconButton(onClick = { /* Undo action */onUndo.invoke() }, enabled = undoActive) {
             Icon(
                 modifier = Modifier
                     .size(24.dp)
@@ -39,7 +41,7 @@ fun Headers(
                 contentDescription = null
             )
         }
-        IconButton(onClick = { /* Redo action */ }) {
+        IconButton(onClick = { /* Redo action */onRedo.invoke() }, enabled = redoActive) {
             Icon(
                 modifier = Modifier
                     .size(24.dp)
@@ -53,7 +55,7 @@ fun Headers(
             modifier = Modifier.weight(1f),
             horizontalArrangement = Arrangement.Center
         ) {
-            IconButton(onClick = { /* Bin action */ }) {
+            IconButton(onClick = { /* Bin action */ onClearCurrentFrame.invoke() }) {
                 Icon(
                     modifier = Modifier.size(24.dp),
                     painter = painterResource(id = R.drawable.bin),

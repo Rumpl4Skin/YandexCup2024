@@ -56,6 +56,8 @@ class MainActivity : ComponentActivity() {
                 val selectedColor = viewModel.selectedColor.collectAsState()
                 val selectedInstrument by viewModel.selectedInstrument.collectAsState()
 
+                val currentFrame by viewModel.currentFrame.collectAsState()
+
                 Scaffold(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -63,7 +65,15 @@ class MainActivity : ComponentActivity() {
                         TopAppBar(
                             title = { },
                             actions = {
-                                Headers()
+                                Headers(
+                                    undoActive = currentFrame.paths.isNotEmpty(),
+                                    redoActive = currentFrame.undonePaths.isNotEmpty(),
+                                    onUndo = viewModel::undo,
+                                    onRedo = viewModel::redo,
+                                    onClearCurrentFrame = {currentFrame.paths.clear()
+                                    currentFrame.undonePaths.clear()
+                                    currentFrame.currentPath.reset()}
+                                )
                             },
                             colors = TopAppBarColors(
                                 containerColor = Color.Transparent,
@@ -154,7 +164,10 @@ class MainActivity : ComponentActivity() {
                         DrawArea(
                             modifier = Modifier.padding(innerPadding),
                             selectedColor = selectedColor,
-                            pencilSelect = selectedInstrument == SelectableInstruments.Pencil
+                            selectedInstruments = viewModel.selectedInstrument,
+                            onUpdatePaths = {viewModel.updateCurrentFrame(currentFrame.copy(paths = it))},
+                            pathsVM = currentFrame.paths,
+                            undonePathsVM = currentFrame.undonePaths,
                         )
                     }
                 )
